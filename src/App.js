@@ -1,8 +1,8 @@
 import React, { Fragment, Component } from 'react';
 import store from './store/index';
-import './APP.css';
+import './App.css';
 
-class APP extends Component {
+class App extends Component {
   constructor(props) {
     super(props);
     this.state = store.getState();
@@ -104,5 +104,5 @@ class APP extends Component {
   }
 }
 
-export default APP;
+export default App;
 
