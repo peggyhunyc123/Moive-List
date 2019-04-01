@@ -1,74 +1,66 @@
 import React, { Fragment, Component } from 'react';
 import store from './store/index';
 import './App.css';
+import Moives from './listTemplate';
+import axios from "axios";
 
 class App extends Component {
+
+  componentDidMount() {
+    const action = getMovies();
+    store.dispatch(action);
+  }
   constructor(props) {
     super(props);
     this.state = store.getState();
     this.handleStoreChange = this.handleStoreChange.bind(this);
-    // this.handleMouseIn = this.handleMouseIn.bind(this);
     this.handleMouseOut = this.handleMouseOut.bind(this);
-    this.handleMouseOver= this.handleMouseOver.bind(this);
-
+    this.handleMouseOver = this.handleMouseOver.bind(this);
     store.subscribe(this.handleStoreChange);
   }
 
   render() {
     let list = '';
-    list = (this.state.mylist.length ===0) ?  "You don't like anything" : <ul>{this.state.mylist.map((item) => (
-      <li key={item.id}>{item.title}</li> 
-     ))}</ul>
+    list = (this.state.mylist.length === 0) ? <span style={{color:' lightslategray'}}>You don't like anything</span> : <ul className='list'>{this.state.mylist.map((item) => (
+      <li key={item.id}>{item.title}</li>
+    ))}</ul>
     return (
       <Fragment>
-        <h2>My List</h2>
-        <div className='container'>
-        
-          {this.state.mylist.map((item, index) => (
-            <div className='movie'
-              key={item.id}
-              onMouseOver={()=>this.handleMouseOver(item.id)}
-              onMouseOut={this.handleMouseOut}
-            >
-              <div className='title'>{item.title}</div>
-              <div className='cell'>
-              <img src={item.img} alt='movie_img' />
-              {this.state.show===item.id ? <button
-                className='btn'
-                onClick={this.handleBtnRemove.bind(this, index)}
-              >Remove</button> : <button style={{visibility:"hidden"}} className='btn'>Remove</button>}
-              </div>
-            </div>
-          ))}
+        <div className='logo'>
+          <img src='https://assets.brand.microsites.netflix.io/assets/1ed15bca-b389-11e7-9274-06c476b5c346_cm_800w.png?v=20'
+           alt='logo' 
+           style={{width:'268px',height:'auto'}}/>
         </div>
-        <h2>Recommendations</h2>
-        <div className='container'>
-        
-          {this.state.recommendations.map((item, index) => (
-            <div className='movie'
-              key={item.id}
-              id={item.id}
-              onMouseOver={()=>this.handleMouseOver(item.id)}
-              onMouseOut={this.handleMouseOut}
-            >
-              <div className='title'>{item.title}</div>
-              <div className='cell'>
-              <img src={item.img} alt='movie_img' />
-              {this.state.show===item.id ? <button
-                className='btn'
-                onClick={this.handleBtnAdd.bind(this, index)}
-              >Add</button> : <button style={{visibility:"hidden"}} className='btn'>Add</button>}
-              </div>
-            </div>
-          ))}
+        <div>
+          <Moives
+            data={this.state.mylist}
+            handleMouseOver={this.handleMouseOver}
+            handleMouseOut={this.handleMouseOut}
+            title={'My List'}
+            show={this.state.show}
+            handleBtnClick={this.handleBtnRemove}
+            btnName={'Remove'}
+          />
         </div>
-        <h2>My List:</h2>
-          {list}
+
+        <div>
+          <Moives
+            data={this.state.recommendations}
+            handleMouseOver={this.handleMouseOver}
+            handleMouseOut={this.handleMouseOut}
+            title={'Recommendations'}
+            show={this.state.show}
+            handleBtnClick={this.handleBtnAdd}
+            btnName={'Add'}
+          />
+        </div>
+        <h2 style={{color:' lightslategray'}}>My List:</h2>
+        {list}
       </Fragment>
     );
   }
 
-  handleBtnAdd(index) {
+  handleBtnAdd = (index) => {
     const action = {
       type: 'ADD_MOVIE',
       index
@@ -76,7 +68,7 @@ class App extends Component {
     store.dispatch(action);
   }
 
-  handleBtnRemove(index) {
+  handleBtnRemove = (index) => {
     const action = {
       type: 'REMOVE_MOVIE',
       index
@@ -101,6 +93,19 @@ class App extends Component {
 
   handleStoreChange() {
     this.setState(store.getState());
+  }
+}
+
+const getMovies= () => {
+  return (dispatch) => {
+    axios.get('./data.json').then((res) => {
+      const data = res.data;
+      const action = {
+        type: 'GET_DATA',
+        data
+      };
+      dispatch(action);
+    })
   }
 }
 
